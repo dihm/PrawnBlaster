@@ -39,7 +39,7 @@ static inline uint32_t fast_serial_write_available(){
 
 // Read up to 64 bytes
 static inline uint32_t fast_serial_read_atomic(const char * buffer, uint32_t buffer_size){
-	return tud_cdc_read(buffer, buffer_size);
+	return tud_cdc_read(const_cast<char*>(buffer), buffer_size);
 }
 
 // Read bytes (blocks until buffer_size is reached)
