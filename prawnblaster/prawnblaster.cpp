@@ -719,6 +719,13 @@ void resus_callback(void)
     clock_status = INTERNAL;
 }
 
+bool clock_src_external(void)
+{
+    // explicit check if clk_sys is using an external GPINx clock source
+    uint current_clk_src = (clocks_hw->clk[clk_sys].ctrl & CLOCKS_CLK_SYS_CTRL_AUXSRC_BITS) >> CLOCKS_CLK_SYS_CTRL_AUXSRC_LSB;
+    return (current_clk_src & CLOCKS_CLK_SYS_CTRL_AUXSRC_VALUE_CLKSRC_GPIN0) | (current_clk_src & CLOCKS_CLK_SYS_CTRL_AUXSRC_VALUE_CLKSRC_GPIN1);
+}
+
 void loop()
 {
     fast_serial_read_until(readstring, 256, '\n');
@@ -1003,9 +1010,18 @@ void loop()
                 else
                 {
                     clock_configure_gpin(clk_sys, (src == 2 ? 22 : 20), freq, freq);
-                    // update clock status
-                    clock_status = EXTERNAL;
-                    fast_serial_printf("ok\r\n");
+                    if (clock_src_external())
+                    {
+                        // update clock status
+                        clock_status = EXTERNAL;
+                        fast_serial_printf("ok\r\n");
+                    }
+                    else
+                    {
+                        // external clock failed
+                        fast_serial_printf("External clock configuration failed\r\n");
+                    }
+                    
                 }
             }
         }
