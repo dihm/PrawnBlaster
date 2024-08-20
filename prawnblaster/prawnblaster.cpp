@@ -717,6 +717,8 @@ void resus_callback(void)
 
     // update clock status
     clock_status = INTERNAL;
+
+    fast_serial_printf("System Clock Resus'd\r\n");
 }
 
 bool clock_src_external(void)
